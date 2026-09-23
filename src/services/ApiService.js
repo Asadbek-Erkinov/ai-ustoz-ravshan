@@ -10,6 +10,8 @@ export const ApiService = {
    * Register a new user via POST request to /api/auth/register
    */
   async register(userData) {
+    if (!API_URL || API_URL === '/api') return { success: true, user: userData };
+    
     const endpoint = `${API_URL}/auth/register`;
     console.log("[REGISTER] API URL:", endpoint);
     console.log("[REGISTER] Sending POST request...");
@@ -43,6 +45,8 @@ export const ApiService = {
    * Log in user via POST request to /api/auth/login
    */
   async login(email, password) {
+    if (!API_URL || API_URL === '/api') return { success: true, user: { email } };
+
     const endpoint = `${API_URL}/auth/login`;
     console.log("[LOGIN] API URL:", endpoint);
     console.log("[LOGIN] Sending POST request...");
@@ -76,6 +80,12 @@ export const ApiService = {
    * Deduct credits from backend database.
    */
   async deductCredits(userId, amount) {
+    if (!API_URL || API_URL === '/api') {
+       // Just mock deduction success if no backend
+       const currentStr = localStorage.getItem(`credits_${userId}`) || "100";
+       const newCreds = Math.max(0, parseInt(currentStr, 10) - amount);
+       return newCreds;
+    }
     const endpoint = `${API_URL}/auth/deduct-credits`;
     console.log("[CREDITS] Sending POST request to deduct credits:", amount);
 
@@ -103,6 +113,10 @@ export const ApiService = {
    * Fetch current credits from backend database.
    */
   async getCredits(userId) {
+    if (!API_URL || API_URL === '/api') {
+      const currentStr = localStorage.getItem(`credits_${userId}`);
+      return currentStr !== null ? parseInt(currentStr, 10) : 100;
+    }
     const endpoint = `${API_URL}/auth/credits?userId=${encodeURIComponent(userId)}`;
     try {
       const response = await fetch(endpoint);
